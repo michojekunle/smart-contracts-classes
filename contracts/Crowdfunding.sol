@@ -4,6 +4,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract Crowdfunding is ReentrancyGuard {
     uint256 private campaignId = 1;
+    address public owner; // Contract owner
 
     // campaign structure
     struct Campaign {
@@ -40,8 +41,14 @@ contract Crowdfunding is ReentrancyGuard {
         address benefactor,
         uint256 amountRaised
     );
+    event Withdrawn(address indexed owner, uint256 amount);
 
     // modifiers
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not the contract owner");
+        _;
+    }
+
     modifier campaignExists(uint256 _campaignId) {
         require(
             _campaignId > 0 && _campaignId < campaignId,
@@ -55,6 +62,11 @@ contract Crowdfunding is ReentrancyGuard {
         _;
     }
 
+    // constructor
+    constructor() {
+        owner = msg.sender;
+    }
+
     // functions
     // createCampaign
     function createCampaign(
@@ -63,7 +75,7 @@ contract Crowdfunding is ReentrancyGuard {
         address payable _benefactor,
         uint256 _goal,
         uint256 _duration
-    ) external payable {
+    ) external {
         require(_goal > 0, "Campaign goal should be greater than zero");
 
         uint256 deadline = block.timestamp + _duration;
@@ -95,19 +107,18 @@ contract Crowdfunding is ReentrancyGuard {
 
     // donateToCampaign
     function donateToCampaign(
-        uint256 _campaignId,
-        uint256 _amount
+        uint256 _campaignId
     ) external payable campaignExists(_campaignId) campaignEnded(_campaignId) {
-        require(_amount > 0, "Amount to donate must be greater than zero");
+        require(msg.value > 0, "Amount to donate must be greater than zero");
 
         if (block.timestamp > campaigns[_campaignId].deadline) {
             _endCampaign(_campaignId);
             revert("Campaign already ended");
         } else {
-            campaigns[_campaignId].amountRaised += _amount;
-            donations[_campaignId][msg.sender] += _amount;
+            campaigns[_campaignId].amountRaised += msg.value;
+            donations[_campaignId][msg.sender] += msg.value;
 
-            emit DonatedReceived(msg.sender, _campaignId, _amount);
+            emit DonatedReceived(msg.sender, _campaignId, msg.value);
         }
     }
 
@@ -149,5 +160,16 @@ contract Crowdfunding is ReentrancyGuard {
             campaign.benefactor,
             campaign.amountRaised
         );
+    }
+
+    // Owner-only function to withdraw leftover funds
+    function withdrawLeftoverFunds() external onlyOwner nonReentrant {
+        uint256 balance = address(this).balance;
+        require(balance > 0, "No funds to withdraw");
+
+        (bool success, ) = owner.call{value: balance}("");
+        require(success, "Failed to withdraw Ether");
+
+        emit Withdrawn(owner, balance);
     }
 }
