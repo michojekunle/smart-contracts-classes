@@ -113,7 +113,7 @@ contract Crowdfunding is ReentrancyGuard {
 
         if (block.timestamp > campaigns[_campaignId].deadline) {
             _endCampaign(_campaignId);
-            revert("Campaign already ended");
+            return;
         } else {
             campaigns[_campaignId].amountRaised += msg.value;
             donations[_campaignId][msg.sender] += msg.value;
