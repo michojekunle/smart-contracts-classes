@@ -2,7 +2,6 @@
 pragma solidity ^0.8.24;
 
 contract AccountContract {
-
     struct Account {
         string name;
         uint balance;

@@ -31,7 +31,7 @@ contract Crowdfunding is ReentrancyGuard {
         string title,
         uint256 campaignId
     );
-    event DonatedReceived(
+    event DonationReceived(
         address indexed user,
         uint256 campaignId,
         uint256 amount
@@ -118,7 +118,7 @@ contract Crowdfunding is ReentrancyGuard {
             campaigns[_campaignId].amountRaised += msg.value;
             donations[_campaignId][msg.sender] += msg.value;
 
-            emit DonatedReceived(msg.sender, _campaignId, msg.value);
+            emit DonationReceived(msg.sender, _campaignId, msg.value);
         }
     }
 
