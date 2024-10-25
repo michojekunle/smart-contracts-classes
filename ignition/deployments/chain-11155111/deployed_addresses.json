@@ -1,4 +1,6 @@
 {
   "AreaCalculatorModule#AreaCalculator": "0x072D37C74404d375Fa8B069C8aF50C0950DbF351",
-  "AccountModule#AccountContract": "0x96255F7A011E9a0c495Eb480f5f33Ff8A5543715"
+  "AccountModule#AccountContract": "0x96255F7A011E9a0c495Eb480f5f33Ff8A5543715",
+  "AccountModule#Attacker": "0x323b7513F5B4b6FA631C4dC1C394A6A456e0d159",
+  "AccountModule#ChallengeTwoExploit": "0xDD1A085244Def86605Ef26C01e82BAe6890b2fB6"
 }
